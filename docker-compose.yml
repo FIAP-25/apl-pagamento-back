@@ -3,7 +3,6 @@ version: '3'
 networks:
     mynetwork:
         name: mynetwork
-        external: true
 
 services:
     mongo_pagamento:
