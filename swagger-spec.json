@@ -1,0 +1,113 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/pagamentos": {
+      "get": {
+        "operationId": "PagamentoController_obterPagamentos",
+        "summary": "Obter pagamentos",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Pagamentos"
+        ]
+      }
+    },
+    "/api/pagamentos/cadastrar/{pedidoId}": {
+      "post": {
+        "operationId": "PagamentoController_cadastrarPagamento",
+        "summary": "Paga um pedido",
+        "parameters": [
+          {
+            "name": "pedidoId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Pagamentos"
+        ]
+      }
+    },
+    "/api/pagamentos/pagar/{pedidoId}": {
+      "post": {
+        "operationId": "PagamentoController_pagarPedido",
+        "summary": "Paga um pedido",
+        "parameters": [
+          {
+            "name": "pedidoId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Pagamentos"
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "HealthController_health",
+        "summary": "Obtém a saúde do sistema",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/": {
+      "get": {
+        "operationId": "BaseController_redirectToSwagger",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Base"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "FIAP - 25 API",
+    "description": "Documentação API.",
+    "version": "2.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "http://localhost:5001",
+      "description": "Servidor de Desenvolvimento"
+    }
+  ],
+  "components": {
+    "schemas": {}
+  }
+}
