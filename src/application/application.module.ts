@@ -1,13 +1,13 @@
 import UseCaseModule from '@/usecase/usecase.module';
-import { Module } from '@nestjs/common';
-import { HeatlhController } from './controller/health/health.controller';
-import { PagamentoController } from './controller/pagamento/pagamento.controller';
-import { BaseController } from './controller/base/base.controller';
 import { HttpModule } from '@nestjs/axios';
+import { Module } from '@nestjs/common';
+import { BaseController } from './controller/base/base.controller';
+import { HealthController } from './controller/health/health.controller';
+import { PagamentoController } from './controller/pagamento/pagamento.controller';
 
 @Module({
     imports: [UseCaseModule, HttpModule],
-    controllers: [PagamentoController, HeatlhController, BaseController],
+    controllers: [PagamentoController, HealthController, BaseController],
     exports: [HttpModule]
 })
 export default class ApplicationModule {}

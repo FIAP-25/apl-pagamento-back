@@ -5,8 +5,6 @@ import { ObterPagamentoOutput } from '@/infrastructure/dto/pagamento/obterPagame
 import { RealizarPagamentoOutput } from '@/infrastructure/dto/pagamento/realizarPagamento.dto';
 import { PagamentoUseCase } from '@/usecase/pagamento/pagamento.usecase';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Axios } from 'axios';
-import { of } from 'rxjs';
 
 describe('PagamentoUseCase', () => {
     let useCase: PagamentoUseCase;
@@ -24,7 +22,7 @@ describe('PagamentoUseCase', () => {
 
         mockHttpService = {
             executarChamada: jest.fn()
-        }
+        };
 
         const module: TestingModule = await Test.createTestingModule({
             providers: [PagamentoUseCase, { provide: IPagamentoRepository, useValue: mockPagamentoRepository }, { provide: IAxiosClient, useValue: mockHttpService }]
@@ -89,12 +87,12 @@ describe('PagamentoUseCase', () => {
             pagamentoStatus: pagamentoStatus
         });
 
-        mockHttpService.executarChamada.mockResolvedValue({ 
-            data: 'Mocked response data', 
-            status: 200,             
-            statusText: 'OK', 
-            headers: {}, 
-            config: {} 
+        mockHttpService.executarChamada.mockResolvedValue({
+            data: 'Mocked response data',
+            status: 200,
+            statusText: 'OK',
+            headers: {},
+            config: {}
         });
 
         const resultado = await useCase.realizarPagamento(pedidoId);
@@ -102,5 +100,37 @@ describe('PagamentoUseCase', () => {
         expect(resultado).toEqual(mockData);
         expect(mockPagamentoRepository.findByPedidoId).toHaveBeenCalled();
         expect(mockPagamentoRepository.save).toHaveBeenCalled();
-    });    
+    });
+
+    it('deve lançar erro quando o pagamento pendente não for encontrado', async () => {
+        const pedidoId = '123';
+        mockPagamentoRepository.findByPedidoId.mockResolvedValue(null as unknown as Pagamento);
+
+        await expect(useCase.realizarPagamento(pedidoId)).rejects.toThrow('pagamento-nao-encontrado');
+        expect(mockPagamentoRepository.findByPedidoId).toHaveBeenCalledWith(pedidoId);
+    });
+
+    it('deve tratar erro na chamada de webhook', async () => {
+        const pedidoId = '123';
+        const mockPagamentoPendente = {
+            _id: '1',
+            pedidoId: pedidoId,
+            notaFiscal: 'NF000001',
+            pagamentoStatus: 'PENDENTE'
+        };
+
+        mockPagamentoRepository.findByPedidoId.mockResolvedValue(mockPagamentoPendente);
+        mockPagamentoRepository.save.mockResolvedValue(mockPagamentoPendente);
+
+        const erroMock = new Error('Erro na chamada de webhook');
+        mockHttpService.executarChamada.mockRejectedValue(erroMock);
+
+        const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+        await useCase.realizarPagamento(pedidoId);
+
+        expect(spy).toHaveBeenCalledWith('erro: ', erroMock);
+
+        spy.mockRestore();
+    });
 });
