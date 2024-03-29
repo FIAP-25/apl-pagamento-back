@@ -7,6 +7,9 @@ import { CadastrarPagamentoOutput } from '@/infrastructure/dto/pagamento/cadastr
 import { ObterPagamentoOutput } from '@/infrastructure/dto/pagamento/obterPagamento.dto';
 import { RealizarPagamentoOutput } from '@/infrastructure/dto/pagamento/realizarPagamento.dto';
 import { Injectable } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+const { exec } = require('child_process');
 
 @Injectable()
 export class PagamentoUseCase implements IPagamentoUseCase {
@@ -27,6 +30,23 @@ export class PagamentoUseCase implements IPagamentoUseCase {
         const pagamentoSalvo = await this.pagamentoRepository.save(pagamento);
 
         return mapper.map(pagamentoSalvo, Pagamento, CadastrarPagamentoOutput);
+    }
+
+    notificaCliente(data: any) {
+        const sender = 'eduardo.vinicius01@outlook.com';
+        const recipient = 'eduardo.vinicius01@outlook.com';
+        const subject = 'Test Email';
+        const message = 'This is a test email sent from Node.js using sendmail.';
+
+        const command = `echo "Subject: ${subject}" | sendmail -f ${sender} ${recipient}`;
+
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.error('Error occurred while sending email:', error);
+                return;
+            }
+            console.log('Email sent successfully');
+        });
     }
 
     async realizarPagamento(pedidoId: string): Promise<RealizarPagamentoOutput> {

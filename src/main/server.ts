@@ -7,6 +7,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
 import helmet from 'helmet';
 import { ServerModule } from './server.module';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 const port = process.env.PORT ?? 4000;
 
@@ -43,6 +44,18 @@ async function bootstrap(): Promise<void> {
     SwaggerModule.setup('api', app, document);
 
     fs.writeFileSync('./swagger-spec.json', JSON.stringify(document, null, 2));
+
+    app.connectMicroservice<MicroserviceOptions>({
+        transport: Transport.RMQ,
+        options: {
+            urls: ['amqps://beigjrvu:OVMxq6Oi3OOHJAwRVL9DLyqWUazLUysc@woodpecker.rmq.cloudamqp.com/beigjrvu'],
+            queue: 'payment-queue',
+            queueOptions: {
+                durable: false
+            }
+        }
+    });
+    await app.startAllMicroservices();
 
     await app.listen(port);
     console.log(`Application is running on: ${await app.getUrl()}`);

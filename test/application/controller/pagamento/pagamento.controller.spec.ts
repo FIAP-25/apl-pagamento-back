@@ -15,7 +15,8 @@ describe('PagamentoController', () => {
             obterPagamentos: jest.fn(),
             cadastrarPagamento: jest.fn(),
             realizarPagamento: jest.fn(),
-            pagamentoWebhook: jest.fn()
+            pagamentoWebhook: jest.fn(),
+            notificaCliente: jest.fn()
         };
 
         response = {
