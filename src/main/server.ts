@@ -7,7 +7,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ServerModule } from './server.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
-const port = process.env.PORT ?? 4000;
+const port = 5000;
 
 async function bootstrap(): Promise<void> {
     if (process.env.NODE_ENV === 'production') {
