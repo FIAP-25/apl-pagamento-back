@@ -22,14 +22,16 @@ export class PagamentoController {
     }
 
     @EventPattern('payment_created')
-    async handlePaymentReceived(data: any) {
-        await this.pagamentoUseCase.cadastrarPagamento(data.pedidoId);
+    async handlePaymentReceived(@Body() data: any, @Res() res: Response) {
+        console.log(data);
+        await this.cadastrarPagamento(data.id, res, 'rabbit');
     }
 
     @Post('cadastrar/:pedidoId')
     @ApiOperation({ summary: 'Paga um pedido' })
-    async cadastrarPagamento(@Param('pedidoId') pedidoId: string, @Res() res: Response): Promise<any> {
+    async cadastrarPagamento(@Param('pedidoId') pedidoId: string, @Res() res: Response, origem?: string): Promise<any> {
         const pagamentoCadastrado = await this.pagamentoUseCase.cadastrarPagamento(pedidoId);
+        if (origem == 'rabbit') return pagamentoCadastrado;
         return ok(pagamentoCadastrado, res);
     }
 
@@ -38,11 +40,5 @@ export class PagamentoController {
     async pagarPedido(@Param('pedidoId') pedidoId: string, @Res() res: Response): Promise<any> {
         const pedidoAtualizado = await this.pagamentoUseCase.realizarPagamento(pedidoId);
         return ok(pedidoAtualizado, res);
-    }
-
-    // @Post('send')
-    @EventPattern('notify_payment')
-    notificaCliente(data: any) {
-        this.pagamentoUseCase.notificaCliente(data);
     }
 }

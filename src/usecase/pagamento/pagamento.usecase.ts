@@ -6,14 +6,14 @@ import { Pagamento } from '@/domain/entity/pagamento.model';
 import { CadastrarPagamentoOutput } from '@/infrastructure/dto/pagamento/cadastrarPagamento.dto';
 import { ObterPagamentoOutput } from '@/infrastructure/dto/pagamento/obterPagamento.dto';
 import { RealizarPagamentoOutput } from '@/infrastructure/dto/pagamento/realizarPagamento.dto';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { Client, ClientProxy, MicroserviceOptions, Transport } from '@nestjs/microservices';
 const { exec } = require('child_process');
 
 @Injectable()
 export class PagamentoUseCase implements IPagamentoUseCase {
-    constructor(private pagamentoRepository: IPagamentoRepository, private axiosClient: IAxiosClient) {}
+    constructor(private pagamentoRepository: IPagamentoRepository, private axiosClient: IAxiosClient, @Inject('PAYMENT_ORDER') private readonly client: ClientProxy) {}
 
     async obterPagamentos(): Promise<ObterPagamentoOutput[]> {
         const pagamentos = await this.pagamentoRepository.find();
@@ -61,7 +61,15 @@ export class PagamentoUseCase implements IPagamentoUseCase {
 
         const pagamentoSalvo = await this.pagamentoRepository.save(pagamentoPendente);
 
-        await this.pagamentoWebhook(pedidoId, true, 'Pagamento realizado com sucesso');
+        var body = {
+            id: pedidoId,
+            aprovado: true,
+            motivo: 'Pagamento aprovado com sucesso'
+        };
+
+        console.log(body);
+        this.client.emit('payment_order', body);
+        // await this.pagamentoWebhook(pedidoId, true, 'Pagamento realizado com sucesso');
 
         return mapper.map(pagamentoSalvo, Pagamento, RealizarPagamentoOutput);
     }
